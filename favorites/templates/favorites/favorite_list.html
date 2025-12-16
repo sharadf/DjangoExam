@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Bookmarks - NewsHub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --accent-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --success-gradient: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+            --warning-gradient: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
+        }
+
+        .neu-card {
+            background: linear-gradient(145deg, #ffffff, #f8fafc);
+            border-radius: 24px;
+            box-shadow: 20px 20px 60px #d9d9d9, -20px -20px 60px #ffffff;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .neu-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 30px 30px 80px #c9c9c9, -30px -30px 80px #ffffff;
+        }
+
+        .gradient-text {
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .category-badge {
+            background: var(--warning-gradient);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .category-badge::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: 0.5s;
+        }
+
+        .category-badge:hover::after {
+            left: 100%;
+        }
+
+        .remove-btn {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .remove-btn::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .remove-btn:hover::after {
+            width: 300px;
+            height: 300px;
+        }
+
+        .author-avatar {
+            background: var(--secondary-gradient);
+            position: relative;
+            transition: transform 0.3s ease;
+        }
+
+        .author-avatar:hover {
+            transform: scale(1.1) rotate(5deg);
+        }
+
+        .empty-state {
+            background: linear-gradient(145deg, #ffffff, #f8fafc);
+            border-radius: 24px;
+            box-shadow: 20px 20px 60px #d9d9d9, -20px -20px 60px #ffffff;
+        }
+
+        .floating {
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .bookmark-image-container {
+            height: 200px;
+            position: relative;
+            overflow: hidden;
+            border-radius: 20px 20px 0 0;
+        }
+
+        .bookmark-image-container img {
+            transition: transform 0.5s ease;
+        }
+
+        .neu-card:hover .bookmark-image-container img {
+            transform: scale(1.1);
+        }
+
+        .animate-on-scroll {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .animate-on-scroll.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-gray-50 via-yellow-50 to-orange-50 min-h-screen">
+    <!-- Navigation -->
+    <nav class="sticky top-0 z-50">
+        <div class="bg-white/80 backdrop-blur-md shadow-lg">
+            <div class="container mx-auto px-6 py-4">
+                <div class="flex justify-between items-center">
+                    <a href="{% url 'articles:article_list' %}" class="text-2xl font-bold flex items-center space-x-3">
+                        <div class="w-10 h-10 rounded-xl bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center">
+                            <i class="fas fa-arrow-left text-white"></i>
+                        </div>
+                        <span class="hidden md:inline">Back to Stories</span>
+                    </a>
+
+                    <div class="text-xl font-bold">
+                        <span class="gradient-text">📚 My Bookmarks</span>
+                    </div>
+
+                    <div class="w-10"></div> <!-- Spacer for centering -->
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container mx-auto px-4 md:px-6 py-8">
+        <!-- Header -->
+        <div class="text-center mb-12">
+            <div class="relative inline-block mb-6">
+                <div class="w-24 h-24 bg-gradient-to-r from-yellow-500 to-orange-500 rounded-2xl flex items-center justify-center mx-auto shadow-xl floating">
+                    <i class="fas fa-bookmark text-white text-4xl"></i>
+                </div>
+                <div class="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-gradient-to-r from-red-400 to-pink-500 flex items-center justify-center">
+                    <i class="fas fa-star text-white text-xs"></i>
+                </div>
+            </div>
+            <h1 class="text-4xl font-bold text-gray-800 mb-3">Your Saved Stories</h1>
+            <p class="text-gray-600 text-lg max-w-2xl mx-auto">
+                All the amazing stories you've bookmarked for later reading
+            </p>
+
+            <!-- Stats -->
+            <div class="mt-8 flex flex-wrap justify-center gap-6">
+                <div class="text-center">
+                    <div class="text-3xl font-bold text-yellow-600">{{ favorites|length }}</div>
+                    <div class="text-gray-600">Saved Stories</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bookmarks Grid -->
+        {% if favorites %}
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {% for fav in favorites %}
+            <div class="neu-card animate-on-scroll" style="animation-delay: {{ forloop.counter0|divisibleby:2|yesno:'0.1s,0.2s' }}">
+                <!-- Article Image -->
+                <div class="bookmark-image-container">
+                    {% if fav.article.image %}
+                    <img src="{{ fav.article.image.url }}" alt="{{ fav.article.title }}" class="w-full h-full object-cover">
+                    {% else %}
+                    <div class="w-full h-full bg-gradient-to-br from-yellow-500 to-orange-500 flex items-center justify-center">
+                        <i class="fas fa-feather-alt text-white text-6xl opacity-30"></i>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Article Content -->
+                <div class="p-6">
+                    <!-- Category & Meta -->
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center space-x-2">
+                            <span class="category-badge text-white text-xs font-bold px-3 py-1.5 rounded-full shadow">
+                                {{ fav.article.category|default:"General" }}
+                            </span>
+                            <span class="text-xs text-gray-500">•</span>
+                            <span class="text-xs text-gray-500">{{ fav.article.created_at|timesince }} ago</span>
+                        </div>
+
+                        <div class="flex items-center space-x-1 text-yellow-500">
+                            <i class="fas fa-star"></i>
+                            <span class="text-sm font-bold">{{ fav.article.rating|floatformat:1 }}</span>
+                        </div>
+                    </div>
+
+                    <!-- Title -->
+                    <h3 class="text-xl font-bold text-gray-800 mb-3 leading-tight group">
+                        <a href="{% url 'articles:article_detail' fav.article.slug %}"
+                           class="hover:text-orange-600 transition-colors duration-300">
+                            {{ fav.article.title }}
+                            <span class="inline-block ml-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <i class="fas fa-arrow-right text-sm"></i>
+                            </span>
+                        </a>
+                    </h3>
+
+                    <!-- Excerpt -->
+                    <p class="text-gray-600 text-sm mb-6 leading-relaxed line-clamp-3">
+                        {{ fav.article.content|truncatewords:20 }}
+                    </p>
+
+                    <!-- Author & Actions -->
+                    <div class="flex items-center justify-between pt-4 border-t border-gray-100">
+                        <div class="flex items-center space-x-3">
+                            <div class="author-avatar w-10 h-10 rounded-full flex items-center justify-center text-white font-bold shadow">
+                                {{ fav.article.author.username|first|upper }}
+                            </div>
+                            <div>
+                                <div class="text-sm font-semibold text-gray-700">{{ fav.article.author.username }}</div>
+                                <div class="text-xs text-gray-500">{{ fav.created_at|timesince }} ago</div>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center space-x-2">
+                            <a href="{% url 'favorites:remove' fav.article.id %}"
+                               class="remove-btn w-10 h-10 rounded-full bg-gradient-to-r from-red-500 to-pink-600 flex items-center justify-center text-white hover:shadow-lg transition"
+                               title="Remove bookmark">
+                                <i class="fas fa-times"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <!-- Empty State -->
+        <div class="empty-state p-10 text-center">
+            <div class="w-32 h-32 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-3xl flex items-center justify-center mx-auto mb-6 floating">
+                <i class="fas fa-book-open text-white text-5xl"></i>
+            </div>
+            <h2 class="text-3xl font-bold text-gray-700 mb-4">Your Reading List is Empty</h2>
+            <p class="text-gray-600 text-lg max-w-md mx-auto mb-8">
+                Start building your personal library by saving stories that inspire you.
+                Click the bookmark icon on any story to save it here!
+            </p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <a href="{% url 'articles:article_list' %}"
+                   class="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-8 py-3 rounded-xl font-semibold hover:shadow-lg transition flex items-center justify-center space-x-3">
+                    <i class="fas fa-newspaper"></i>
+                    <span>Explore Stories</span>
+                </a>
+                <a href="{% url 'articles:article_create' %}"
+                   class="bg-gradient-to-r from-green-500 to-emerald-600 text-white px-8 py-3 rounded-xl font-semibold hover:shadow-lg transition flex items-center justify-center space-x-3">
+                    <i class="fas fa-pen"></i>
+                    <span>Write Your Story</span>
+                </a>
+            </div>
+        </div>
+        {% endif %}
+    </main>
+
+<script>
+    // Animation on scroll
+    document.addEventListener('DOMContentLoaded', function() {
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, observerOptions);
+
+        // Observe all animate-on-scroll elements
+        document.querySelectorAll('.animate-on-scroll').forEach(el => {
+            observer.observe(el);
+        });
+
+        // Confirmation for removing bookmarks
+        document.querySelectorAll('.remove-btn').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                if (!confirm('Remove this story from your bookmarks?')) {
+                    e.preventDefault();
+                }
+            });
+        });
+    });
+</script>
+</body>
+</html>

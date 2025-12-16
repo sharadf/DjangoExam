@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Moderation Log - NewsHub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --accent-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --success-gradient: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+            --danger-gradient: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+        }
+
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .neu-card {
+            background: linear-gradient(145deg, #ffffff, #f8fafc);
+            border-radius: 20px;
+            box-shadow: 15px 15px 40px #d9d9d9, -15px -15px 40px #ffffff;
+        }
+
+        .gradient-text {
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .log-card {
+            background: linear-gradient(145deg, #ffffff, #f8fafc);
+            border-radius: 16px;
+            padding: 1.5rem;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border-left: 4px solid transparent;
+        }
+
+        .log-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 10px 10px 30px #d1d1d1, -10px -10px 30px #ffffff;
+        }
+
+        .log-card.approved {
+            border-left-color: #10b981;
+        }
+
+        .log-card.rejected {
+            border-left-color: #ef4444;
+        }
+
+        .log-card.edited {
+            border-left-color: #3b82f6;
+        }
+
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .status-badge.approved {
+            background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+            color: #065f46;
+        }
+
+        .status-badge.rejected {
+            background: linear-gradient(135deg, #fee2e2, #fecaca);
+            color: #991b1b;
+        }
+
+        .status-badge.edited {
+            background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+            color: #1e40af;
+        }
+
+        .floating {
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .filter-btn {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 2px solid transparent;
+        }
+
+        .filter-btn.active {
+            background: var(--primary-gradient);
+            color: white;
+            border-color: transparent;
+        }
+
+        .filter-btn:hover:not(.active) {
+            border-color: #667eea;
+            transform: translateY(-2px);
+        }
+
+        .time-badge {
+            background: linear-gradient(135deg, #f3f4f6, #e5e7eb);
+            color: #4b5563;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-gray-50 via-gray-100 to-blue-50 min-h-screen">
+    <!-- Navigation -->
+    <nav class="sticky top-0 z-50">
+        <div class="bg-white/80 backdrop-blur-md shadow-lg">
+            <div class="container mx-auto px-6 py-4">
+                <div class="flex justify-between items-center">
+                    <a href="{% url 'articles:moderation_list' %}" class="text-2xl font-bold flex items-center space-x-3">
+                        <div class="w-10 h-10 rounded-xl bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center">
+                            <i class="fas fa-arrow-left text-white"></i>
+                        </div>
+                        <span class="hidden md:inline">Back to Moderation</span>
+                    </a>
+
+                    <div class="text-xl font-bold">
+                        <span class="gradient-text">📜 Moderation Log</span>
+                    </div>
+
+                    <a href="{% url 'articles:article_list' %}"
+                       class="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-6 py-2 rounded-xl font-semibold hover:shadow-lg transition transform hover:-translate-y-1 flex items-center space-x-2">
+                        <i class="fas fa-home"></i>
+                        <span>Home</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container mx-auto px-4 md:px-6 py-8">
+        <!-- Header -->
+        <div class="text-center mb-12">
+            <div class="relative inline-block mb-6">
+                <div class="w-24 h-24 bg-gradient-to-r from-gray-800 to-gray-900 rounded-2xl flex items-center justify-center mx-auto shadow-xl floating">
+                    <i class="fas fa-scroll text-white text-4xl"></i>
+                </div>
+                <div class="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-gradient-to-r from-blue-400 to-cyan-500 flex items-center justify-center">
+                    <i class="fas fa-history text-white text-xs"></i>
+                </div>
+            </div>
+            <h1 class="text-4xl font-bold text-gray-800 mb-3">Moderation History</h1>
+            <p class="text-gray-600 text-lg max-w-2xl mx-auto">
+                Complete audit trail of all moderation actions taken in the community
+            </p>
+
+            <!-- Stats -->
+            <div class="mt-8 flex flex-wrap justify-center gap-6">
+                <div class="text-center">
+                    <div class="text-3xl font-bold text-green-600">{{ approved_count|default:"0" }}</div>
+                    <div class="text-gray-600">Approved</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-3xl font-bold text-red-600">{{ rejected_count|default:"0" }}</div>
+                    <div class="text-gray-600">Rejected</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-3xl font-bold text-blue-600">{{ logs|length }}</div>
+                    <div class="text-gray-600">Total Actions</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="max-w-4xl mx-auto mb-8">
+            <div class="neu-card p-6">
+                <div class="flex flex-wrap gap-3 justify-center">
+                    <button onclick="filterLogs('all')"
+                            class="filter-btn bg-white px-5 py-2 rounded-full font-semibold shadow hover:shadow-xl flex items-center space-x-2 active">
+                        <i class="fas fa-layer-group"></i>
+                        <span>All Actions</span>
+                    </button>
+                    <button onclick="filterLogs('approved')"
+                            class="filter-btn bg-white px-5 py-2 rounded-full font-semibold shadow hover:shadow-xl flex items-center space-x-2">
+                        <i class="fas fa-check-circle text-green-500"></i>
+                        <span>Approved</span>
+                    </button>
+                    <button onclick="filterLogs('rejected')"
+                            class="filter-btn bg-white px-5 py-2 rounded-full font-semibold shadow hover:shadow-xl flex items-center space-x-2">
+                        <i class="fas fa-times-circle text-red-500"></i>
+                        <span>Rejected</span>
+                    </button>
+                    <button onclick="filterLogs('edited')"
+                            class="filter-btn bg-white px-5 py-2 rounded-full font-semibold shadow hover:shadow-xl flex items-center space-x-2">
+                        <i class="fas fa-edit text-blue-500"></i>
+                        <span>Edited</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Log Entries -->
+        <div class="max-w-4xl mx-auto">
+            {% if logs %}
+            <div class="space-y-4">
+                {% for log in logs %}
+                <div class="log-card {{ log.action|lower }}"
+                     data-action="{{ log.action|lower }}">
+                    <div class="flex flex-col md:flex-row md:items-start justify-between gap-4">
+                        <div class="flex-1">
+                            <div class="flex items-start gap-4 mb-4">
+                                <div class="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0
+                                    {% if 'approved' in log.action|lower %}bg-gradient-to-r from-green-400 to-emerald-500
+                                    {% elif 'rejected' in log.action|lower %}bg-gradient-to-r from-red-400 to-pink-500
+                                    {% else %}bg-gradient-to-r from-blue-400 to-cyan-500{% endif %}">
+                                    {% if 'approved' in log.action|lower %}
+                                    <i class="fas fa-check-circle text-white text-xl"></i>
+                                    {% elif 'rejected' in log.action|lower %}
+                                    <i class="fas fa-times-circle text-white text-xl"></i>
+                                    {% else %}
+                                    <i class="fas fa-edit text-white text-xl"></i>
+                                    {% endif %}
+                                </div>
+
+                                <div class="flex-1">
+                                    <div class="flex flex-wrap items-center gap-3 mb-2">
+                                        <span class="status-badge {{ log.action|lower }}">
+                                            {% if 'approved' in log.action|lower %}✅ Approved
+                                            {% elif 'rejected' in log.action|lower %}❌ Rejected
+                                            {% else %}✏️ Edited{% endif %}
+                                        </span>
+                                        <span class="time-badge px-3 py-1 rounded-full text-sm">
+                                            <i class="far fa-clock mr-1"></i>
+                                            {{ log.created_at|date:"d M Y, H:i" }}
+                                        </span>
+                                    </div>
+
+                                    <h3 class="font-bold text-gray-800 text-lg mb-2">
+                                        {% if 'approved' in log.action|lower %}
+                                        <i class="fas fa-user-check text-green-500 mr-2"></i>
+                                        {% elif 'rejected' in log.action|lower %}
+                                        <i class="fas fa-user-times text-red-500 mr-2"></i>
+                                        {% else %}
+                                        <i class="fas fa-user-edit text-blue-500 mr-2"></i>
+                                        {% endif %}
+                                        {{ log.moderator.username }}
+                                        {{ log.action }}
+                                        <a href="{% url 'articles:article_detail' log.article.slug %}"
+                                           class="text-purple-600 hover:text-purple-800 transition"
+                                           target="_blank">
+                                            "{{ log.article.title }}"
+                                        </a>
+                                    </h3>
+
+                                    {% if log.reason %}
+                                    <div class="mt-3 p-3 bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl">
+                                        <div class="text-sm text-gray-600 font-medium mb-1">Reason:</div>
+                                        <p class="text-gray-700">{{ log.reason }}</p>
+                                    </div>
+                                    {% endif %}
+
+                                    <div class="mt-4 flex flex-wrap gap-4 text-sm text-gray-500">
+                                        <span class="flex items-center gap-1">
+                                            <i class="fas fa-user"></i>
+                                            Author: {{ log.article.author.username }}
+                                        </span>
+                                        <span class="flex items-center gap-1">
+                                            <i class="fas fa-tag"></i>
+                                            Category: {{ log.article.category|default:"General" }}
+                                        </span>
+                                        <span class="flex items-center gap-1">
+                                            <i class="far fa-calendar"></i>
+                                            Created: {{ log.article.created_at|date:"d M Y" }}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Empty state for filtered results -->
+            <div id="no-results" class="hidden">
+                <div class="neu-card p-10 text-center">
+                    <div class="w-32 h-32 bg-gradient-to-br from-gray-300 to-gray-400 rounded-3xl flex items-center justify-center mx-auto mb-6">
+                        <i class="fas fa-search text-white text-5xl"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold text-gray-700 mb-4">No Matching Actions</h2>
+                    <p class="text-gray-600 mb-8">
+                        No moderation actions match the selected filter. Try a different filter or view all actions.
+                    </p>
+                    <button onclick="filterLogs('all')"
+                            class="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-8 py-3 rounded-xl font-semibold hover:shadow-lg transition">
+                        Show All Actions
+                    </button>
+                </div>
+            </div>
+            {% else %}
+            <!-- Empty State -->
+            <div class="neu-card p-10 text-center">
+                <div class="w-32 h-32 bg-gradient-to-br from-gray-300 to-gray-400 rounded-3xl flex items-center justify-center mx-auto mb-6 floating">
+                    <i class="fas fa-history text-white text-5xl"></i>
+                </div>
+                <h2 class="text-3xl font-bold text-gray-700 mb-4">No Moderation History Yet</h2>
+                <p class="text-gray-600 text-lg max-w-md mx-auto mb-8">
+                    The moderation log is empty. Once moderation actions are taken, they'll appear here.
+                </p>
+                <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                    <a href="{% url 'articles:moderation_list' %}"
+                       class="bg-gradient-to-r from-purple-500 to-pink-600 text-white px-8 py-3 rounded-xl font-semibold hover:shadow-lg transition flex items-center justify-center space-x-3">
+                        <i class="fas fa-shield-alt"></i>
+                        <span>Go to Moderation Panel</span>
+                    </a>
+                    <a href="{% url 'articles:article_list' %}"
+                       class="bg-gradient-to-r from-blue-500 to-cyan-600 text-white px-8 py-3 rounded-xl font-semibold hover:shadow-lg transition flex items-center justify-center space-x-3">
+                        <i class="fas fa-newspaper"></i>
+                        <span>Browse Stories</span>
+                    </a>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </main>
+
+<script>
+    // Filter logs by action type
+    function filterLogs(actionType) {
+        const logs = document.querySelectorAll('.log-card');
+        const noResults = document.getElementById('no-results');
+        let visibleCount = 0;
+
+        // Update active filter button
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        event.target.classList.add('active');
+
+        // Filter logs
+        logs.forEach(log => {
+            if (actionType === 'all' || log.dataset.action.includes(actionType)) {
+                log.style.display = 'block';
+                visibleCount++;
+            } else {
+                log.style.display = 'none';
+            }
+        });
+
+        // Show/hide no results message
+        if (visibleCount === 0 && logs.length > 0) {
+            noResults.classList.remove('hidden');
+        } else {
+            noResults.classList.add('hidden');
+        }
+    }
+
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add smooth animations
+        const logs = document.querySelectorAll('.log-card');
+        logs.forEach((log, index) => {
+            log.style.opacity = '0';
+            log.style.transform = 'translateY(20px)';
+
+            setTimeout(() => {
+                log.style.transition = 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
+                log.style.opacity = '1';
+                log.style.transform = 'translateY(0)';
+            }, index * 100);
+        });
+    });
+</script>
+</body>
+</html>

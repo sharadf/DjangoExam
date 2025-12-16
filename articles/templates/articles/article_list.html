@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NewsHub - Latest Articles</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+          rel="stylesheet">
+    <style>
+        * {
+            font-family: 'Inter', sans-serif;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --accent-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --success-gradient: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+        }
+
+        .dark {
+            --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            --card-bg: #1e293b;
+            --text-primary: #f1f5f9;
+            --text-secondary: #cbd5e1;
+            --border-color: #334155;
+        }
+
+        .light {
+            --bg-gradient: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            --card-bg: #ffffff;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --border-color: #e2e8f0;
+        }
+
+        body {
+            background: var(--bg-gradient);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .dark .glass-effect {
+            background: rgba(30, 41, 59, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .neu-card {
+            background: var(--card-bg);
+            border-radius: 24px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            border: 1px solid var(--border-color);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .dark .neu-card {
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            border: 1px solid #334155;
+        }
+
+        .neu-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+        }
+
+        .dark .neu-card:hover {
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+        }
+
+        .category-tag {
+            background: var(--accent-gradient);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .category-tag::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: 0.5s;
+        }
+
+        .category-tag:hover::after {
+            left: 100%;
+        }
+
+        .author-avatar {
+            background: var(--secondary-gradient);
+            position: relative;
+            transition: transform 0.3s ease;
+        }
+
+        .author-avatar:hover {
+            transform: scale(1.1) rotate(5deg);
+        }
+
+        .rating-badge {
+            background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .rating-badge::before {
+            content: '★';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 2rem;
+            opacity: 0.1;
+        }
+
+        .gradient-text {
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .filter-chip {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 2px solid transparent;
+            background: var(--card-bg);
+            color: var(--text-primary);
+        }
+
+        .filter-chip.active {
+            background: var(--primary-gradient);
+            color: white;
+            border-color: transparent;
+            transform: scale(1.05);
+        }
+
+        .filter-chip:hover:not(.active) {
+            border-color: #667eea;
+            transform: translateY(-2px);
+        }
+
+        .stats-card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 1.5rem;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            border: 1px solid var(--border-color);
+        }
+
+        .stats-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stats-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: var(--primary-gradient);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .stats-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .pagination-btn {
+            background: var(--card-bg);
+            border: 2px solid var(--border-color);
+            color: var(--text-primary);
+            border-radius: 12px;
+            padding: 0.5rem 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .pagination-btn:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+        }
+
+        .pagination-btn.active {
+            background: var(--primary-gradient);
+            color: white;
+            border-color: transparent;
+        }
+
+        .article-image-container {
+            height: 200px;
+            position: relative;
+            overflow: hidden;
+            border-radius: 20px 20px 0 0;
+        }
+
+        .article-image-container img {
+            transition: transform 0.5s ease;
+        }
+
+        .neu-card:hover .article-image-container img {
+            transform: scale(1.1);
+        }
+
+        .article-image-container::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 50%;
+            background: linear-gradient(to top, rgba(0,0,0,0.3), transparent);
+        }
+
+        .status-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            z-index: 2;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            backdrop-filter: blur(10px);
+        }
+
+        .animate-on-scroll {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .animate-on-scroll.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .floating {
+            animation: float 3s ease-in-out infinite;
+        }
+
+        /* Theme toggle */
+        .theme-toggle {
+            position: relative;
+            width: 60px;
+            height: 30px;
+            background: var(--card-bg);
+            border-radius: 50px;
+            border: 2px solid var(--border-color);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .theme-toggle::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 22px;
+            height: 22px;
+            background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+
+        .dark .theme-toggle::after {
+            left: calc(100% - 24px);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .dark .theme-toggle {
+            border-color: #4c1d95;
+        }
+
+        /* Floating Action Buttons - ИСПРАВЛЕННЫЕ РАЗМЕРЫ */
+        .floating-action-buttons {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 50;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 12px;
+        }
+
+        .fab-btn {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            font-weight: 600;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            color: white;
+        }
+
+        .fab-btn:hover {
+            transform: translateY(-4px) scale(1.05);
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.25);
+        }
+
+        .fab-btn.users-btn {
+            background: linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%);
+        }
+
+        .fab-btn.create-btn {
+            background: linear-gradient(135deg, #10b981 0%, #3b82f6 100%);
+        }
+
+        .fab-btn .tooltip {
+            position: absolute;
+            right: calc(100% + 12px);
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(0, 0, 0, 0.85);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            white-space: nowrap;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            pointer-events: none;
+        }
+
+        .fab-btn:hover .tooltip {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .floating-action-buttons {
+                bottom: 20px;
+                right: 20px;
+            }
+
+            .fab-btn {
+                width: 52px;
+                height: 52px;
+                font-size: 1.125rem;
+            }
+
+            .fab-btn .tooltip {
+                font-size: 0.75rem;
+                padding: 4px 8px;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .floating-action-buttons {
+                bottom: 16px;
+                right: 16px;
+            }
+
+            .fab-btn {
+                width: 48px;
+                height: 48px;
+                font-size: 1rem;
+            }
+        }
+
+    </style>
+</head>
+<body class="light">
+<!-- Header Navigation -->
+<header class="sticky top-0 z-50 mb-8">
+    <div class="relative overflow-hidden">
+        <div class="absolute inset-0 bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 opacity-90"></div>
+        <div class="relative container mx-auto px-6 py-4">
+            <div class="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
+
+                                 <!-- ПЕРЕКЛЮЧАТЕЛЬ ТЕМЫ - ЗДЕСЬ -->
+                <button id="themeToggle" class="theme-toggle-header flex items-center space-x-2 text-white">
+                    <i class="fas fa-sun"></i>
+                    <div class="theme-switch">
+                        <div class="switch-handle"></div>
+                    </div>
+                    <i class="fas fa-moon"></i>
+                </button>
+
+                <!-- Logo -->
+                <a href="{% url 'articles:article_list' %}" class="text-3xl font-bold flex items-center space-x-3">
+                    <div class="relative">
+                        <div class="w-12 h-12 rounded-2xl bg-white flex items-center justify-center">
+                            <i class="fas fa-newspaper text-2xl bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent"></i>
+                        </div>
+                        <div class="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-gradient-to-r from-yellow-400 to-orange-500"></div>
+                    </div>
+                    <span class="text-white">News<span class="text-yellow-300">Hub</span></span>
+                </a>
+
+                <!-- Navigation Buttons -->
+                <div class="flex flex-wrap justify-center gap-3">
+                    {% if user.is_authenticated %}
+                    <!-- User info -->
+                    <div class="flex items-center space-x-3">
+                        <div class="glass-effect px-4 py-2 rounded-2xl flex items-center space-x-3">
+                            <div class="w-10 h-10 rounded-full bg-gradient-to-r from-cyan-400 to-blue-500 flex items-center justify-center text-white font-bold">
+                                {{ user.username|first|upper }}
+                            </div>
+                            <div>
+                                <div class="text-white text-sm font-semibold">Hello, {{ user.username }}</div>
+                                <div class="text-white/80 text-xs">{{ user.role|default:"User" }}</div>
+                            </div>
+                        </div>
+
+                        <!-- Admin/Moderator Links -->
+                        {% if user.role == "admin" or user.role == "superadmin" %}
+                        <a href="{% url 'articles:moderation_list' %}"
+                           class="glass-effect text-white px-4 py-2 rounded-xl font-semibold flex items-center space-x-2 hover:bg-white/20 transition">
+                            <i class="fas fa-shield-alt"></i>
+                            <span class="hidden md:inline">Moderate</span>
+                        </a>
+                        {% endif %}
+
+                        <!-- Bookmarks -->
+                        <a href="{% url 'favorites:list' %}"
+                           class="glass-effect text-white px-4 py-2 rounded-xl font-semibold flex items-center space-x-2 hover:bg-white/20 transition">
+                            <i class="fas fa-bookmark"></i>
+                            <span class="hidden md:inline">Bookmarks</span>
+                        </a>
+                    </div>
+
+                    <!-- Logout Button -->
+                    <a href="{% url 'users:logout' %}"
+                       class="bg-white/20 text-white px-4 py-2 rounded-xl font-semibold flex items-center space-x-2 hover:bg-white/30 transition backdrop-blur-sm">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span class="hidden md:inline">Logout</span>
+                    </a>
+                    {% else %}
+                    <!-- Guest Navigation -->
+                    <a href="{% url 'users:login' %}"
+                       class="glass-effect text-white px-6 py-3 rounded-xl font-semibold flex items-center space-x-2 hover:bg-white/20 transition">
+                        <i class="fas fa-sign-in-alt"></i>
+                        <span>Login</span>
+                    </a>
+                    <a href="{% url 'users:register' %}"
+                       class="bg-gradient-to-r from-green-400 to-cyan-500 text-white px-6 py-3 rounded-xl font-semibold flex items-center space-x-2 hover:shadow-lg transition transform hover:-translate-y-1">
+                        <i class="fas fa-user-plus"></i>
+                        <span>Register</span>
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Floating Action Buttons - ИСПРАВЛЕННЫЕ РАЗМЕРЫ -->
+{% if user.is_authenticated %}
+<div class="floating-action-buttons">
+    <!-- User List Button -->
+    {% if user.role == "admin" or user.role == "superadmin" %}
+    <a href="{% url 'users:user_list' %}" class="fab-btn users-btn" title="User Management">
+        <i class="fas fa-users"></i>
+        <span class="tooltip">User Management</span>
+    </a>
+    {% endif %}
+
+    <!-- Create Article Button -->
+    <a href="{% url 'articles:article_create' %}" class="fab-btn create-btn" title="Create Article">
+        <i class="fas fa-plus"></i>
+        <span class="tooltip">Create Article</span>
+    </a>
+</div>
+{% endif %}
+
+<main class="container mx-auto px-4 md:px-6 py-8">
+    <!-- Hero Section -->
+    <div class="text-center mb-16 animate-on-scroll">
+        <div class="relative inline-block mb-8 floating">
+            <div class="absolute inset-0 bg-gradient-to-r from-purple-400 to-pink-400 rounded-3xl blur-xl opacity-30"></div>
+            <h1 class="text-5xl md:text-6xl font-bold mb-4 relative z-10">
+                <span class="gradient-text">Discover Amazing</span><br>
+                <span class="text-gray-800 dark:text-gray-200">Stories & Insights</span>
+            </h1>
+        </div>
+        <p class="text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto mb-10">
+            Join our community of passionate writers and curious readers. Explore, learn, and share knowledge.
+        </p>
+
+        <!-- Quick Stats -->
+        <div class="flex flex-wrap justify-center gap-6 mb-12">
+            <div class="stats-card text-center">
+                <div class="text-3xl font-bold text-purple-600 dark:text-purple-400">{{ articles|length }}</div>
+                <div class="text-gray-600 dark:text-gray-400">Articles</div>
+            </div>
+            <div class="stats-card text-center">
+                <div class="text-3xl font-bold text-green-600 dark:text-green-400">{{ categories|length }}</div>
+                <div class="text-gray-600 dark:text-gray-400">Categories</div>
+            </div>
+            <div class="stats-card text-center">
+                <div class="text-3xl font-bold text-blue-600 dark:text-blue-400">{{ avg_rating|floatformat:1 }}</div>
+                <div class="text-gray-600 dark:text-gray-400">Avg Rating</div>
+            </div>
+            <div class="stats-card text-center">
+                <div class="text-3xl font-bold text-orange-600 dark:text-orange-400">{{ user_count }}</div>
+                <div class="text-gray-600 dark:text-gray-400">Writers</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters Section -->
+    <div class="mb-12 animate-on-scroll">
+        <!-- Main Filters -->
+        <div class="flex flex-wrap gap-3 justify-center mb-8">
+            <a href="?filter=latest"
+               class="filter-chip px-5 py-3 rounded-full font-semibold shadow-lg hover:shadow-xl flex items-center space-x-2 {% if request.GET.filter == 'latest' or not request.GET.filter %}active{% endif %}">
+                <i class="fas fa-bolt text-yellow-500"></i>
+                <span>Latest</span>
+            </a>
+            <a href="?filter=popular"
+               class="filter-chip px-5 py-3 rounded-full font-semibold shadow-lg hover:shadow-xl flex items-center space-x-2 {% if request.GET.filter == 'popular' %}active{% endif %}">
+                <i class="fas fa-fire text-red-500"></i>
+                <span>Trending</span>
+            </a>
+            <a href="?filter=top_rated"
+               class="filter-chip px-5 py-3 rounded-full font-semibold shadow-lg hover:shadow-xl flex items-center space-x-2 {% if request.GET.filter == 'top_rated' %}active{% endif %}">
+                <i class="fas fa-crown text-amber-500"></i>
+                <span>Top Rated</span>
+            </a>
+        </div>
+
+        <!-- Category Filters -->
+        <div class="flex flex-wrap gap-2 justify-center">
+            <a href="?category=all"
+               class="px-4 py-2 bg-gradient-to-r from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900 text-gray-700 dark:text-gray-300 rounded-full text-sm font-medium hover:from-gray-200 hover:to-gray-300 dark:hover:from-gray-700 dark:hover:to-gray-800 transition shadow">
+                🌟 All Topics
+            </a>
+            {% for category in categories %}
+            <a href="?category={{ category.slug }}"
+               class="px-4 py-2 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-full text-sm font-medium hover:bg-gradient-to-r hover:from-purple-50 hover:to-pink-50 dark:hover:from-purple-900/20 dark:hover:to-pink-900/20 hover:text-purple-700 dark:hover:text-purple-300 transition shadow border border-gray-100 dark:border-gray-700">
+                {{ category.name }}
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Articles Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {% for article in articles %}
+        <div class="neu-card animate-on-scroll"
+             style="animation-delay: {{ forloop.counter0|divisibleby:2|yesno:'0.1s,0.2s' }}">
+            <!-- Article Image -->
+            <div class="article-image-container">
+                {% if article.image %}
+                <img src="{{ article.image.url }}" alt="{{ article.title }}" class="w-full h-full object-cover">
+                {% else %}
+                <div class="w-full h-full bg-gradient-to-br from-purple-500 to-blue-600 flex items-center justify-center">
+                    <i class="fas fa-newspaper text-white text-6xl opacity-30"></i>
+                </div>
+                {% endif %}
+
+                <!-- Status Badge (for admins) -->
+                {% if user.role == "admin" or user.role == "superadmin" %}
+                {% if article.status == "pending" %}
+                <div class="status-badge bg-yellow-500/20 text-yellow-700 dark:text-yellow-300">
+                    ⏳ Pending
+                </div>
+                {% elif article.status == "rejected" %}
+                <div class="status-badge bg-red-500/20 text-red-700 dark:text-red-300">
+                    ❌ Rejected
+                </div>
+                {% endif %}
+                {% endif %}
+            </div>
+
+            <!-- Article Content -->
+            <div class="p-6">
+                <!-- Category & Meta -->
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center space-x-2">
+                        <span class="category-tag text-white text-xs font-bold px-3 py-1.5 rounded-full shadow">
+                            {{ article.category.name|default:"General" }}
+                        </span>
+                        <span class="text-xs text-gray-500 dark:text-gray-400">•</span>
+                        <span class="text-xs text-gray-500 dark:text-gray-400">{{ article.created_at|timesince }} ago</span>
+                    </div>
+
+                    <div class="rating-badge text-white text-sm font-bold px-3 py-1 rounded-lg">
+                        {{ article.rating|floatformat:1 }}
+                    </div>
+                </div>
+
+                <!-- Title -->
+                <h3 class="text-xl font-bold mb-3 leading-tight group">
+                    <a href="{% url 'articles:article_detail' article.slug %}"
+                       class="hover:text-purple-600 dark:hover:text-purple-400 transition-colors duration-300">
+                        {{ article.title }}
+                        <span class="inline-block ml-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <i class="fas fa-arrow-right text-sm"></i>
+                        </span>
+                    </a>
+                </h3>
+
+                <!-- Excerpt -->
+                <p class="text-gray-600 dark:text-gray-400 text-sm mb-6 leading-relaxed line-clamp-3">
+                    {{ article.content|truncatechars:120 }}
+                </p>
+
+                <!-- Author & Info -->
+                <div class="flex items-center justify-between pt-4 border-t border-gray-100 dark:border-gray-700">
+                    <div class="flex items-center space-x-3">
+                        <div class="author-avatar w-10 h-10 rounded-full flex items-center justify-center text-white font-bold shadow">
+                            {{ article.author.username|first|upper }}
+                        </div>
+                        <div>
+                            <div class="text-sm font-semibold text-gray-700 dark:text-gray-300">{{ article.author.username }}</div>
+                            {% if user.role == "admin" or user.role == "superadmin" %}
+                            <div class="text-xs text-gray-500 dark:text-gray-400">{{ article.author.role }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="flex items-center space-x-2">
+                        <span class="text-xs text-gray-500 dark:text-gray-400 flex items-center space-x-1">
+                            <i class="far fa-eye"></i>
+                            <span>0</span>
+                        </span>
+                        <span class="text-xs text-gray-500 dark:text-gray-400 flex items-center space-x-1">
+                            <i class="far fa-comment"></i>
+                            <span>{{ article.comment_set.count }}</span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <!-- Empty State -->
+        <div class="col-span-full text-center py-20 animate-on-scroll">
+            <div class="max-w-md mx-auto">
+                <div class="w-32 h-32 bg-gradient-to-br from-purple-400 to-blue-500 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-2xl floating">
+                    <i class="fas fa-feather-alt text-white text-5xl"></i>
+                </div>
+                <h3 class="text-3xl font-bold mb-4">No Stories Yet</h3>
+                <p class="text-gray-600 dark:text-gray-400 text-lg mb-8">
+                    {% if request.GET.filter or request.GET.category %}
+                    Nothing matches your search. Try different filters or be the pioneer!
+                    {% else %}
+                    The storyboard is empty. Your words could be the first masterpiece!
+                    {% endif %}
+                </p>
+                {% if user.is_authenticated %}
+                <a href="{% url 'articles:article_create' %}"
+                   class="inline-block bg-gradient-to-r from-purple-500 to-pink-500 text-white px-10 py-4 rounded-xl font-bold text-lg shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
+                    <i class="fas fa-magic mr-3"></i>Create First Story
+                </a>
+                {% else %}
+                <div class="space-y-4">
+                    <a href="{% url 'users:register' %}"
+                       class="inline-block bg-gradient-to-r from-green-500 to-cyan-500 text-white px-10 py-4 rounded-xl font-bold text-lg shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
+                        <i class="fas fa-user-plus mr-3"></i>Join the Community
+                    </a>
+                    <p class="text-gray-500 dark:text-gray-400">or</p>
+                    <a href="{% url 'users:login' %}"
+                       class="inline-block bg-gradient-to-r from-blue-500 to-purple-500 text-white px-10 py-4 rounded-xl font-bold text-lg shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
+                        <i class="fas fa-sign-in-alt mr-3"></i>Sign In to Write
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if articles.has_other_pages %}
+    <div class="mt-16 flex justify-center animate-on-scroll">
+        <nav class="flex items-center space-x-3 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl p-2 shadow-lg">
+            {% if articles.has_previous %}
+            <a href="?page={{ articles.previous_page_number }}{% if request.GET.filter %}&filter={{ request.GET.filter }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}"
+               class="pagination-btn">
+                <i class="fas fa-chevron-left"></i>
+            </a>
+            {% endif %}
+
+            {% for num in articles.paginator.page_range %}
+            {% if articles.number == num %}
+            <span class="pagination-btn active">
+                    {{ num }}
+                </span>
+            {% elif num > articles.number|add:'-3' and num < articles.number|add:'3' %}
+            <a href="?page={{ num }}{% if request.GET.filter %}&filter={{ request.GET.filter }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}"
+               class="pagination-btn">
+                {{ num }}
+            </a>
+            {% endif %}
+            {% endfor %}
+
+            {% if articles.has_next %}
+            <a href="?page={{ articles.next_page_number }}{% if request.GET.filter %}&filter={{ request.GET.filter }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}"
+               class="pagination-btn">
+                <i class="fas fa-chevron-right"></i>
+            </a>
+            {% endif %}
+        </nav>
+    </div>
+    {% endif %}
+</main>
+
+<!-- Footer -->
+<footer class="mt-24 bg-gradient-to-br from-gray-900 to-black text-white py-16">
+    <div class="container mx-auto px-6">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
+            <!-- Brand -->
+            <div>
+                <div class="flex items-center space-x-3 mb-6">
+                    <div class="w-12 h-12 rounded-xl bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center">
+                        <i class="fas fa-newspaper text-2xl text-white"></i>
+                    </div>
+                    <span class="text-2xl font-bold">News<span class="text-yellow-300">Hub</span></span>
+                </div>
+                <p class="text-gray-400 mb-6">
+                    Where stories find their voice and ideas take flight.
+                </p>
+                <div class="flex space-x-4">
+                    <a href="#"
+                       class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-gray-700 transition">
+                        <i class="fab fa-twitter"></i>
+                    </a>
+                    <a href="#"
+                       class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-gray-700 transition">
+                        <i class="fab fa-github"></i>
+                    </a>
+                    <a href="#"
+                       class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-gray-700 transition">
+                        <i class="fab fa-linkedin"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Explore -->
+            <div>
+                <h4 class="font-bold text-lg mb-6">Explore</h4>
+                <ul class="space-y-3">
+                    <li><a href="?filter=latest" class="text-gray-400 hover:text-white transition">Latest Stories</a>
+                    </li>
+                    <li><a href="?filter=popular" class="text-gray-400 hover:text-white transition">Trending Now</a>
+                    </li>
+                    <li><a href="?filter=top_rated" class="text-gray-400 hover:text-white transition">Top Rated</a></li>
+                    {% for category in categories|slice:":3" %}
+                    <li><a href="?category={{ category.slug }}" class="text-gray-400 hover:text-white transition">{{
+                        category.name }}</a></li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <!-- Community -->
+            <div>
+                <h4 class="font-bold text-lg mb-6">Community</h4>
+                <ul class="space-y-3">
+                    {% if user.is_authenticated %}
+                    <li><a href="{% url 'articles:article_create' %}" class="text-gray-400 hover:text-white transition">Write
+                        a Story</a></li>
+                    <li><a href="{% url 'favorites:list' %}" class="text-gray-400 hover:text-white transition">My
+                        Bookmarks</a></li>
+                    <li><a href="{% url 'articles:my_articles' %}" class="text-gray-400 hover:text-white transition">My
+                        Articles</a></li>
+                    {% if user.role == "admin" or user.role == "superadmin" %}
+                    <li><a href="{% url 'users:user_list' %}" class="text-gray-400 hover:text-white transition">User Management</a></li>
+                    {% endif %}
+                    {% else %}
+                    <li><a href="{% url 'users:login' %}" class="text-gray-400 hover:text-white transition">Sign In</a>
+                    </li>
+                    <li><a href="{% url 'users:register' %}" class="text-gray-400 hover:text-white transition">Join
+                        Now</a></li>
+                    {% endif %}
+                </ul>
+            </div>
+
+            <!-- Newsletter -->
+            <div>
+                <h4 class="font-bold text-lg mb-6">Stay Updated</h4>
+                <p class="text-gray-400 mb-4">Get the best stories delivered to your inbox.</p>
+                <div class="flex">
+                    <input type="email" placeholder="Your email"
+                           class="flex-1 bg-gray-800 text-white px-4 py-3 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-purple-500">
+                    <button class="bg-gradient-to-r from-purple-600 to-pink-600 px-4 py-3 rounded-r-lg font-semibold hover:opacity-90 transition">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="pt-8 border-t border-gray-800 text-center">
+            <p class="text-gray-400">&copy; 2024 NewsHub. Crafted with passion using Django & Tailwind.</p>
+            <p class="text-gray-500 text-sm mt-2">Every story matters. Every voice counts.</p>
+        </div>
+    </div>
+</footer>
+
+<script>
+    // Animation on scroll
+    document.addEventListener('DOMContentLoaded', function() {
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, observerOptions);
+
+        // Observe all animate-on-scroll elements
+        document.querySelectorAll('.animate-on-scroll').forEach(el => {
+            observer.observe(el);
+        });
+
+        // Card hover effects
+        const cards = document.querySelectorAll('.neu-card');
+        cards.forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                card.style.transform = 'translateY(-10px) scale(1.02)';
+            });
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = 'translateY(0) scale(1)';
+            });
+        });
+
+        // Update stats animation
+        const statNumbers = document.querySelectorAll('.stats-card .text-3xl');
+        statNumbers.forEach(stat => {
+            const target = parseInt(stat.textContent);
+            let current = 0;
+            const increment = target / 50;
+            const timer = setInterval(() => {
+                current += increment;
+                if (current >= target) {
+                    current = target;
+                    clearInterval(timer);
+                }
+                stat.textContent = Math.round(current);
+            }, 30);
+        });
+
+        // Floating buttons hover effect
+        const fabButtons = document.querySelectorAll('.fab-btn');
+        fabButtons.forEach(btn => {
+            btn.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-4px) scale(1.05)';
+            });
+            btn.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0) scale(1)';
+            });
+        });
+    });
+
+    const themeToggle = document.getElementById('themeToggle');
+const body = document.body;
+
+// Проверяем сохраненную тему
+const savedTheme = localStorage.getItem('theme');
+const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+// Устанавливаем тему
+if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+    body.classList.add('dark');
+} else {
+    body.classList.add('light');
+}
+
+// Переключение темы
+themeToggle.addEventListener('click', () => {
+    if (body.classList.contains('dark')) {
+        body.classList.remove('dark');
+        body.classList.add('light');
+        localStorage.setItem('theme', 'light');
+    } else {
+        body.classList.remove('light');
+        body.classList.add('dark');
+        localStorage.setItem('theme', 'dark');
+    }
+});
+
+
+
+</script>
+</body>
+</html>

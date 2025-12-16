@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Management | NewsHub Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            font-family: 'Inter', sans-serif;
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+        }
+
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --danger-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --success-gradient: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+            --warning-gradient: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            --info-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+
+        .dark {
+            --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            --card-bg: #1e293b;
+            --text-primary: #f1f5f9;
+            --text-secondary: #cbd5e1;
+            --border-color: #334155;
+            --hover-bg: rgba(255, 255, 255, 0.05);
+        }
+
+        .light {
+            --bg-gradient: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            --card-bg: #ffffff;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --border-color: #e2e8f0;
+            --hover-bg: rgba(0, 0, 0, 0.02);
+        }
+
+        body {
+            background: var(--bg-gradient);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .dark .glass-effect {
+            background: rgba(30, 41, 59, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .neu-card {
+            background: var(--card-bg);
+            border-radius: 24px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+
+        .dark .neu-card {
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .gradient-text {
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .status-badge {
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 4px 12px;
+            border-radius: 20px;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .role-badge {
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 6px 14px;
+            border-radius: 20px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .action-btn {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-weight: 500;
+            border-radius: 12px;
+            padding: 8px 16px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .dark .action-btn:hover {
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .table-row-hover:hover {
+            background: var(--hover-bg);
+        }
+
+        .stats-card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 1.5rem;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            border: 1px solid var(--border-color);
+        }
+
+        .stats-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stats-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: var(--primary-gradient);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .stats-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        /* Theme toggle */
+        .theme-toggle {
+            position: relative;
+            width: 60px;
+            height: 30px;
+            background: var(--card-bg);
+            border-radius: 50px;
+            border: 2px solid var(--border-color);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .theme-toggle::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 22px;
+            height: 22px;
+            background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+
+        .dark .theme-toggle::after {
+            left: calc(100% - 24px);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .dark .theme-toggle {
+            border-color: #4c1d95;
+        }
+
+        /* Avatar styles */
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: white;
+            font-size: 1rem;
+        }
+
+        .superadmin-avatar {
+            background: linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%);
+        }
+
+        .admin-avatar {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+        }
+
+        .user-avatar-basic {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        }
+
+        .banned-avatar {
+            background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+        }
+
+        /* Search bar */
+        .search-bar {
+            background: var(--card-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 16px;
+            padding: 12px 20px;
+            transition: all 0.3s ease;
+        }
+
+        .search-bar:focus-within {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        /* Filter chips */
+        .filter-chip {
+            background: var(--card-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 20px;
+            padding: 8px 16px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .filter-chip.active {
+            background: var(--primary-gradient);
+            color: white;
+            border-color: transparent;
+        }
+
+        .filter-chip:hover:not(.active) {
+            border-color: #667eea;
+            transform: translateY(-2px);
+        }
+
+        /* Table responsive */
+        @media (max-width: 768px) {
+            .table-container {
+                border-radius: 16px;
+                overflow: hidden;
+            }
+
+            .mobile-card {
+                background: var(--card-bg);
+                border-radius: 16px;
+                border: 1px solid var(--border-color);
+                margin-bottom: 1rem;
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .animate-fade-in {
+            animation: fadeIn 0.5s ease forwards;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .floating {
+            animation: float 3s ease-in-out infinite;
+        }
+
+        /* Floating Action Buttons */
+.user-list-btn {
+    background: linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%);
+    box-shadow: 0 8px 25px rgba(139, 92, 246, 0.3);
+}
+
+.dark .user-list-btn {
+    box-shadow: 0 8px 25px rgba(139, 92, 246, 0.5);
+}
+
+.user-list-btn:hover {
+    box-shadow: 0 12px 35px rgba(139, 92, 246, 0.4);
+}
+
+.dark .user-list-btn:hover {
+    box-shadow: 0 12px 35px rgba(139, 92, 246, 0.6);
+}
+
+.create-article-btn {
+    background: linear-gradient(135deg, #10b981 0%, #3b82f6 100%);
+    box-shadow: 0 8px 25px rgba(16, 185, 129, 0.3);
+}
+
+.dark .create-article-btn {
+    box-shadow: 0 8px 25px rgba(16, 185, 129, 0.5);
+}
+
+.create-article-btn:hover {
+    box-shadow: 0 12px 35px rgba(16, 185, 129, 0.4);
+}
+
+.dark .create-article-btn:hover {
+    box-shadow: 0 12px 35px rgba(16, 185, 129, 0.6);
+}
+
+/* Mobile adjustments */
+@media (max-width: 640px) {
+    .fixed.bottom-4.right-4 {
+        bottom: 20px;
+        right: 20px;
+    }
+
+    .user-list-btn,
+    .create-article-btn {
+        width: 56px;
+        height: 56px;
+    }
+}
+
+    </style>
+</head>
+
+<body class="light">
+    <!-- Theme Toggle -->
+    <button id="themeToggle" class="fixed top-4 right-4 z-50 theme-toggle" aria-label="Toggle theme"></button>
+
+    <!-- Back to Articles Button -->
+    <a href="{% url 'articles:article_list' %}"
+       class="fixed top-4 left-4 z-50 bg-gradient-to-r from-purple-500 to-pink-500 text-white px-5 py-2.5 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 flex items-center space-x-2">
+        <i class="fas fa-arrow-left"></i>
+        <span class="hidden md:inline">Back to Articles</span>
+    </a>
+
+    <div class="container mx-auto px-4 md:px-6 py-8 max-w-7xl">
+        <!-- Header -->
+        <div class="mb-10 text-center">
+            <div class="relative inline-block mb-6 floating">
+                <div class="absolute inset-0 bg-gradient-to-r from-purple-400 to-pink-400 rounded-3xl blur-xl opacity-30"></div>
+                <h1 class="text-4xl md:text-5xl font-bold mb-4 relative z-10">
+                    <span class="gradient-text">User Management</span>
+                </h1>
+            </div>
+            <p class="text-lg text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
+                Manage user roles, permissions, and account status. Ensure a safe and productive community environment.
+            </p>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+            <div class="stats-card">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <div class="text-sm text-gray-600 dark:text-gray-400">Total Users</div>
+                        <div class="text-3xl font-bold text-purple-600 dark:text-purple-400">{{ users|length }}</div>
+                    </div>
+                    <div class="w-12 h-12 rounded-xl bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center">
+                        <i class="fas fa-users text-white text-xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stats-card">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <div class="text-sm text-gray-600 dark:text-gray-400">Active Users</div>
+                        {% with active_users=users|dictsort:"banned"|slice:":1" %}
+                        <div class="text-3xl font-bold text-green-600 dark:text-green-400">{{ active_users|length }}</div>
+                        {% endwith %}
+                    </div>
+                    <div class="w-12 h-12 rounded-xl bg-gradient-to-r from-green-500 to-cyan-500 flex items-center justify-center">
+                        <i class="fas fa-user-check text-white text-xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stats-card">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <div class="text-sm text-gray-600 dark:text-gray-400">Banned Users</div>
+                        {% with banned_users=users|dictsort:"banned"|slice:":1" %}
+                        <div class="text-3xl font-bold text-red-600 dark:text-red-400">{{ banned_users|length }}</div>
+                        {% endwith %}
+                    </div>
+                    <div class="w-12 h-12 rounded-xl bg-gradient-to-r from-red-500 to-orange-500 flex items-center justify-center">
+                        <i class="fas fa-user-slash text-white text-xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stats-card">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <div class="text-sm text-gray-600 dark:text-gray-400">Admins</div>
+                        <div class="text-3xl font-bold text-blue-600 dark:text-blue-400">
+                            {% with admins=users|dictsort:"role"|slice:":1" %}{{ admins|length }}{% endwith %}
+                        </div>
+                    </div>
+                    <div class="w-12 h-12 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-500 flex items-center justify-center">
+                        <i class="fas fa-shield-alt text-white text-xl"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filters and Search -->
+        <div class="neu-card p-6 mb-8">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+                <!-- Search -->
+                <div class="flex-1 w-full md:w-auto">
+                    <div class="search-bar flex items-center">
+                        <i class="fas fa-search text-gray-400 mr-3"></i>
+                        <input type="text"
+                               placeholder="Search users by username, email, or role..."
+                               class="w-full bg-transparent outline-none text-gray-700 dark:text-gray-300 placeholder-gray-500 dark:placeholder-gray-400"
+                               id="searchInput">
+                    </div>
+                </div>
+
+                <!-- Filters -->
+                <div class="flex flex-wrap gap-3">
+                    <button class="filter-chip active" data-filter="all">
+                        <i class="fas fa-layer-group mr-2"></i>
+                        All Users
+                    </button>
+                    <button class="filter-chip" data-filter="active">
+                        <i class="fas fa-check-circle mr-2"></i>
+                        Active
+                    </button>
+                    <button class="filter-chip" data-filter="banned">
+                        <i class="fas fa-ban mr-2"></i>
+                        Banned
+                    </button>
+                    <button class="filter-chip" data-filter="admins">
+                        <i class="fas fa-shield-alt mr-2"></i>
+                        Admins
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Users Table -->
+        <div class="neu-card overflow-hidden">
+            <!-- Table Header -->
+            <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+                <div class="flex justify-between items-center">
+                    <h2 class="text-xl font-semibold">User List</h2>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">
+                        Showing <span class="font-bold">{{ users|length }}</span> users
+                    </div>
+                </div>
+            </div>
+
+            <!-- Desktop Table -->
+            <div class="hidden md:block overflow-x-auto">
+                <table class="w-full">
+                    <thead>
+                        <tr class="border-b border-gray-200 dark:border-gray-700">
+                            <th class="text-left p-4 text-sm font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider">User</th>
+                            <th class="text-left p-4 text-sm font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider">Role</th>
+                            <th class="text-left p-4 text-sm font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider">Status</th>
+                            <th class="text-left p-4 text-sm font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider">Joined</th>
+                            <th class="text-left p-4 text-sm font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for u in users %}
+                        <tr class="table-row-hover border-b border-gray-100 dark:border-gray-800 animate-fade-in"
+                            style="animation-delay: {{ forloop.counter0|add:'0.1' }}s">
+                            <!-- User Column -->
+                            <td class="p-4">
+                                <div class="flex items-center space-x-4">
+                                    <div class="user-avatar {% if u.banned %}banned-avatar{% elif u.role == 'superadmin' %}superadmin-avatar{% elif u.role == 'admin' %}admin-avatar{% else %}user-avatar-basic{% endif %}">
+                                        {{ u.username|first|upper }}
+                                    </div>
+                                    <div>
+                                        <div class="font-semibold flex items-center space-x-2">
+                                            <span>{{ u.username }}</span>
+                                            {% if u == request.user %}
+                                            <span class="status-badge bg-gradient-to-r from-blue-500 to-cyan-500 text-white">
+                                                <i class="fas fa-user text-xs"></i> You
+                                            </span>
+                                            {% endif %}
+                                        </div>
+                                        <div class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                                            ID: {{ u.id }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+
+                            <!-- Role Column -->
+                            <td class="p-4">
+                                {% if u.role == 'superadmin' %}
+                                <span class="role-badge bg-gradient-to-r from-purple-500 to-pink-500 text-white">
+                                    <i class="fas fa-crown"></i> SUPERADMIN
+                                </span>
+                                {% elif u.role == 'admin' %}
+                                <span class="role-badge bg-gradient-to-r from-blue-500 to-indigo-500 text-white">
+                                    <i class="fas fa-shield-alt"></i> ADMIN
+                                </span>
+                                {% else %}
+                                <span class="role-badge bg-gradient-to-r from-gray-500 to-gray-700 text-white">
+                                    <i class="fas fa-user"></i> USER
+                                </span>
+                                {% endif %}
+                            </td>
+
+                            <!-- Status Column -->
+                            <td class="p-4">
+                                {% if u.banned %}
+                                <div class="flex items-center space-x-2">
+                                    <span class="status-badge bg-gradient-to-r from-red-500 to-orange-500 text-white">
+                                        <i class="fas fa-ban"></i> BANNED
+                                    </span>
+                                    {% if u.banned_until %}
+                                    <span class="text-xs text-gray-600 dark:text-gray-400">
+                                        Until {{ u.banned_until|date:"d M Y" }}
+                                    </span>
+                                    {% endif %}
+                                </div>
+                                {% else %}
+                                <span class="status-badge bg-gradient-to-r from-green-500 to-emerald-500 text-white">
+                                    <i class="fas fa-check-circle"></i> ACTIVE
+                                </span>
+                                {% endif %}
+                            </td>
+
+                            <!-- Joined Date -->
+                            <td class="p-4">
+                                <div class="text-sm text-gray-700 dark:text-gray-300">
+                                    {{ u.date_joined|date:"d M Y" }}
+                                </div>
+                                <div class="text-xs text-gray-600 dark:text-gray-400">
+                                    {{ u.date_joined|timesince }} ago
+                                </div>
+                            </td>
+
+                            <!-- Actions Column -->
+                            <td class="p-4">
+                                <div class="flex flex-wrap gap-2">
+                                    {% if u == request.user %}
+                                        <span class="action-btn bg-gradient-to-r from-gray-500 to-gray-600 text-white cursor-default">
+                                            <i class="fas fa-user"></i> Current User
+                                        </span>
+                                    {% else %}
+                                        <!-- Ban/Unban Button -->
+                                        {% if u.banned %}
+                                            <a href="{% url 'users:user_unban' u.pk %}"
+                                               class="action-btn bg-gradient-to-r from-green-500 to-emerald-500 text-white hover:shadow-lg">
+                                                <i class="fas fa-unlock"></i> Unban
+                                            </a>
+                                        {% else %}
+                                            <a href="{% url 'users:user_ban' u.pk %}"
+                                               class="action-btn bg-gradient-to-r from-red-500 to-orange-500 text-white hover:shadow-lg">
+                                                <i class="fas fa-ban"></i> Ban
+                                            </a>
+                                        {% endif %}
+
+                                        <!-- Make Admin Button (only for superadmin) -->
+                                        {% if request.user.role == "superadmin" and u.role == "user" %}
+                                            <a href="{% url 'users:make_admin' u.pk %}"
+                                               class="action-btn bg-gradient-to-r from-blue-500 to-indigo-500 text-white hover:shadow-lg">
+                                                <i class="fas fa-user-shield"></i> Make Admin
+                                            </a>
+                                        {% endif %}
+
+                                        <!-- Remove Admin Button (only for superadmin) -->
+                                        {% if request.user.role == "superadmin" and u.role == "admin" %}
+                                            <a href="{% url 'users:remove_admin' u.pk %}"
+                                               class="action-btn bg-gradient-to-r from-yellow-500 to-amber-500 text-white hover:shadow-lg">
+                                                <i class="fas fa-user-minus"></i> Remove Admin
+                                            </a>
+                                        {% endif %}
+
+                                        <!-- View Profile Button -->
+                                        <button class="action-btn bg-gradient-to-r from-gray-600 to-gray-700 text-white hover:shadow-lg">
+                                            <i class="fas fa-eye"></i> View
+                                        </button>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="p-12 text-center">
+                                <div class="flex flex-col items-center justify-center">
+                                    <div class="w-24 h-24 bg-gradient-to-br from-gray-400 to-gray-600 rounded-3xl flex items-center justify-center mx-auto mb-6">
+                                        <i class="fas fa-users text-white text-3xl"></i>
+                                    </div>
+                                    <h3 class="text-2xl font-bold mb-3">No Users Found</h3>
+                                    <p class="text-gray-600 dark:text-gray-400 max-w-md">
+                                        There are currently no users in the system. Users will appear here once they register.
+                                    </p>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Mobile Cards -->
+            <div class="md:hidden">
+                {% for u in users %}
+                <div class="mobile-card m-4 p-6 animate-fade-in"
+                     style="animation-delay: {{ forloop.counter0|add:'0.1' }}s">
+                    <!-- User Header -->
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center space-x-4">
+                            <div class="user-avatar {% if u.banned %}banned-avatar{% elif u.role == 'superadmin' %}superadmin-avatar{% elif u.role == 'admin' %}admin-avatar{% else %}user-avatar-basic{% endif %}">
+                                {{ u.username|first|upper }}
+                            </div>
+                            <div>
+                                <div class="font-semibold">{{ u.username }}</div>
+                                <div class="text-sm text-gray-600 dark:text-gray-400">ID: {{ u.id }}</div>
+                            </div>
+                        </div>
+                        {% if u == request.user %}
+                        <span class="status-badge bg-gradient-to-r from-blue-500 to-cyan-500 text-white">
+                            <i class="fas fa-user text-xs"></i> You
+                        </span>
+                        {% endif %}
+                    </div>
+
+                    <!-- User Info -->
+                    <div class="grid grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <div class="text-sm text-gray-600 dark:text-gray-400 mb-1">Role</div>
+                            {% if u.role == 'superadmin' %}
+                            <span class="role-badge bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs">
+                                <i class="fas fa-crown"></i> SUPERADMIN
+                            </span>
+                            {% elif u.role == 'admin' %}
+                            <span class="role-badge bg-gradient-to-r from-blue-500 to-indigo-500 text-white text-xs">
+                                <i class="fas fa-shield-alt"></i> ADMIN
+                            </span>
+                            {% else %}
+                            <span class="role-badge bg-gradient-to-r from-gray-500 to-gray-700 text-white text-xs">
+                                <i class="fas fa-user"></i> USER
+                            </span>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <div class="text-sm text-gray-600 dark:text-gray-400 mb-1">Status</div>
+                            {% if u.banned %}
+                            <span class="status-badge bg-gradient-to-r from-red-500 to-orange-500 text-white text-xs">
+                                <i class="fas fa-ban"></i> BANNED
+                            </span>
+                            {% else %}
+                            <span class="status-badge bg-gradient-to-r from-green-500 to-emerald-500 text-white text-xs">
+                                <i class="fas fa-check-circle"></i> ACTIVE
+                            </span>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Joined Date -->
+                    <div class="mb-4">
+                        <div class="text-sm text-gray-600 dark:text-gray-400">Joined</div>
+                        <div class="text-sm">{{ u.date_joined|date:"d M Y" }}</div>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="pt-4 border-t border-gray-200 dark:border-gray-700">
+                        {% if u == request.user %}
+                            <span class="action-btn bg-gradient-to-r from-gray-500 to-gray-600 text-white w-full justify-center cursor-default">
+                                <i class="fas fa-user"></i> Current User
+                            </span>
+                        {% else %}
+                            <div class="grid grid-cols-2 gap-2">
+                                {% if u.banned %}
+                                    <a href="{% url 'users:user_unban' u.pk %}"
+                                       class="action-btn bg-gradient-to-r from-green-500 to-emerald-500 text-white justify-center">
+                                        <i class="fas fa-unlock"></i> Unban
+                                    </a>
+                                {% else %}
+                                    <a href="{% url 'users:user_ban' u.pk %}"
+                                       class="action-btn bg-gradient-to-r from-red-500 to-orange-500 text-white justify-center">
+                                        <i class="fas fa-ban"></i> Ban
+                                    </a>
+                                {% endif %}
+
+                                {% if request.user.role == "superadmin" and u.role == "user" %}
+                                    <a href="{% url 'users:make_admin' u.pk %}"
+                                       class="action-btn bg-gradient-to-r from-blue-500 to-indigo-500 text-white justify-center">
+                                        <i class="fas fa-user-shield"></i> Make Admin
+                                    </a>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% empty %}
+                <div class="p-12 text-center">
+                    <div class="flex flex-col items-center justify-center">
+                        <div class="w-24 h-24 bg-gradient-to-br from-gray-400 to-gray-600 rounded-3xl flex items-center justify-center mx-auto mb-6">
+                            <i class="fas fa-users text-white text-3xl"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold mb-3">No Users Found</h3>
+                        <p class="text-gray-600 dark:text-gray-400 max-w-md">
+                            There are currently no users in the system.
+                        </p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Footer Info -->
+        <div class="mt-12 text-center">
+            <p class="text-sm text-gray-600 dark:text-gray-400">
+                <i class="fas fa-shield-alt mr-2"></i>
+                You have administrative privileges to manage user accounts.
+                All actions are logged for security purposes.
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // Theme toggle
+        const themeToggle = document.getElementById('themeToggle');
+        const body = document.body;
+
+        const savedTheme = localStorage.getItem('theme');
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+        if (savedTheme) {
+            body.classList.add(savedTheme);
+        } else if (prefersDark) {
+            body.classList.add('dark');
+        }
+
+        themeToggle.addEventListener('click', () => {
+            if (body.classList.contains('dark')) {
+                body.classList.remove('dark');
+                body.classList.add('light');
+                localStorage.setItem('theme', 'light');
+            } else {
+                body.classList.remove('light');
+                body.classList.add('dark');
+                localStorage.setItem('theme', 'dark');
+            }
+        });
+
+        // Filter functionality
+        document.querySelectorAll('.filter-chip').forEach(chip => {
+            chip.addEventListener('click', function() {
+                // Remove active class from all chips
+                document.querySelectorAll('.filter-chip').forEach(c => {
+                    c.classList.remove('active');
+                });
+                // Add active class to clicked chip
+                this.classList.add('active');
+
+                const filter = this.dataset.filter;
+                filterUsers(filter);
+            });
+        });
+
+        // Search functionality
+        const searchInput = document.getElementById('searchInput');
+        searchInput.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            filterUsers('search', searchTerm);
+        });
+
+        function filterUsers(filter, searchTerm = '') {
+            const rows = document.querySelectorAll('.table-row-hover, .mobile-card');
+
+            rows.forEach(row => {
+                let show = true;
+                const username = row.querySelector('.font-semibold')?.textContent?.toLowerCase() || '';
+                const role = row.querySelector('.role-badge')?.textContent?.toLowerCase() || '';
+                const status = row.querySelector('.status-badge')?.textContent?.toLowerCase() || '';
+
+                // Apply search filter
+                if (searchTerm) {
+                    show = username.includes(searchTerm) || role.includes(searchTerm) || status.includes(searchTerm);
+                }
+
+                // Apply category filter
+                if (filter === 'active') {
+                    show = show && !status.includes('banned');
+                } else if (filter === 'banned') {
+                    show = show && status.includes('banned');
+                } else if (filter === 'admins') {
+                    show = show && (role.includes('admin') || role.includes('superadmin'));
+                }
+
+                // Show/hide row
+                row.style.display = show ? '' : 'none';
+            });
+        }
+
+        // Add hover effects to action buttons
+        document.querySelectorAll('.action-btn').forEach(btn => {
+            btn.addEventListener('mouseenter', function() {
+                if (!this.classList.contains('cursor-default')) {
+                    this.style.transform = 'translateY(-2px)';
+                }
+            });
+
+            btn.addEventListener('mouseleave', function() {
+                if (!this.classList.contains('cursor-default')) {
+                    this.style.transform = 'translateY(0)';
+                }
+            });
+        });
+
+        // Animate stats cards on load
+        document.addEventListener('DOMContentLoaded', () => {
+            const statsCards = document.querySelectorAll('.stats-card');
+            statsCards.forEach((card, index) => {
+                setTimeout(() => {
+                    card.style.opacity = '0';
+                    card.style.transform = 'translateY(20px)';
+                    card.style.transition = 'all 0.6s ease';
+
+                    setTimeout(() => {
+                        card.style.opacity = '1';
+                        card.style.transform = 'translateY(0)';
+                    }, 50);
+                }, index * 150);
+            });
+        });
+    </script>
+</body>
+</html>

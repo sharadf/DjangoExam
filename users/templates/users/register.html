@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Join NewsHub - Register</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --accent-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --success-gradient: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+        }
+
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .neu-card {
+            background: linear-gradient(145deg, #ffffff, #f8fafc);
+            border-radius: 32px;
+            box-shadow: 40px 40px 80px #d1d1d1, -40px -40px 80px #ffffff;
+        }
+
+        .gradient-text {
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .input-field {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 2px solid #e5e7eb;
+            border-radius: 16px;
+            padding: 1rem 1.5rem;
+            width: 100%;
+            background: white;
+        }
+
+        .input-field:focus {
+            border-color: #10b981;
+            box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
+            outline: none;
+            transform: translateY(-2px);
+        }
+
+        .register-btn {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .register-btn::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .register-btn:hover::after {
+            width: 300px;
+            height: 300px;
+        }
+
+        .floating {
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .benefit-card {
+            background: linear-gradient(145deg, #ffffff, #f8fafc);
+            border-radius: 16px;
+            padding: 1.5rem;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .benefit-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .benefit-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: var(--success-gradient);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .benefit-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .password-strength {
+            height: 4px;
+            border-radius: 2px;
+            margin-top: 4px;
+            transition: all 0.3s ease;
+        }
+
+        .strength-0 { width: 0%; background: #ef4444; }
+        .strength-1 { width: 25%; background: #f97316; }
+        .strength-2 { width: 50%; background: #eab308; }
+        .strength-3 { width: 75%; background: #3b82f6; }
+        .strength-4 { width: 100%; background: #10b981; }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-green-400 via-blue-500 to-purple-600 min-h-screen flex items-center justify-center p-4">
+    <div class="max-w-4xl w-full">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Left Column - Registration Form -->
+            <div class="neu-card p-8 md:p-12">
+                <!-- Header -->
+                <div class="text-center mb-10">
+                    <div class="relative inline-block mb-6">
+                        <div class="w-20 h-20 bg-gradient-to-r from-green-500 to-emerald-500 rounded-2xl flex items-center justify-center mx-auto shadow-xl">
+                            <i class="fas fa-user-plus text-white text-3xl"></i>
+                        </div>
+                        <div class="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-gradient-to-r from-yellow-400 to-orange-500 flex items-center justify-center">
+                            <i class="fas fa-sparkles text-white text-xs"></i>
+                        </div>
+                    </div>
+                    <h1 class="text-4xl font-bold text-gray-800 mb-3">Join Our Community</h1>
+                    <p class="text-gray-600 text-lg">
+                        Create your account and start sharing stories
+                    </p>
+                </div>
+
+                <!-- Registration Form -->
+                <form method="post" class="space-y-8" id="register-form">
+                    {% csrf_token %}
+
+                    <!-- Username Field -->
+                    <div class="space-y-4">
+                        <label class="text-lg font-semibold text-gray-800 flex items-center space-x-3">
+                            <div class="w-10 h-10 rounded-xl bg-gradient-to-r from-green-500 to-emerald-500 flex items-center justify-center">
+                                <i class="fas fa-user text-white"></i>
+                            </div>
+                            <span>Username</span>
+                        </label>
+                        <input type="text" name="username" required
+                               class="input-field" placeholder="Choose a unique username"
+                               id="username" oninput="checkUsernameAvailability()">
+                        <div class="text-sm text-gray-500" id="username-hint">
+                            This will be your public display name
+                        </div>
+                    </div>
+
+                    <!-- Email Field -->
+                    <div class="space-y-4">
+                        <label class="text-lg font-semibold text-gray-800 flex items-center space-x-3">
+                            <div class="w-10 h-10 rounded-xl bg-gradient-to-r from-blue-500 to-cyan-500 flex items-center justify-center">
+                                <i class="fas fa-envelope text-white"></i>
+                            </div>
+                            <span>Email Address</span>
+                        </label>
+                        <input type="email" name="email" required
+                               class="input-field" placeholder="Enter your email address"
+                               id="email">
+                        <div class="text-sm text-gray-500">
+                            We'll never share your email with anyone
+                        </div>
+                    </div>
+
+                    <!-- Password Field -->
+                    <div class="space-y-4">
+                        <label class="text-lg font-semibold text-gray-800 flex items-center space-x-3">
+                            <div class="w-10 h-10 rounded-xl bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center">
+                                <i class="fas fa-lock text-white"></i>
+                            </div>
+                            <span>Password</span>
+                        </label>
+                        <input type="password" name="password" required
+                               class="input-field" placeholder="Create a strong password"
+                               id="password" oninput="updatePasswordStrength()">
+                        <div class="password-strength strength-0" id="password-strength"></div>
+                        <div class="text-sm text-gray-500" id="password-hint">
+                            Use at least 8 characters with letters and numbers
+                        </div>
+                    </div>
+
+                    <!-- Confirm Password -->
+                    <div class="space-y-4">
+                        <label class="text-lg font-semibold text-gray-800 flex items-center space-x-3">
+                            <div class="w-10 h-10 rounded-xl bg-gradient-to-r from-orange-500 to-red-500 flex items-center justify-center">
+                                <i class="fas fa-lock text-white"></i>
+                            </div>
+                            <span>Confirm Password</span>
+                        </label>
+                        <input type="password" name="password2" required
+                               class="input-field" placeholder="Re-enter your password"
+                               id="confirm-password" oninput="checkPasswordMatch()">
+                        <div class="text-sm text-gray-500" id="confirm-hint">
+                            Must match the password above
+                        </div>
+                    </div>
+
+                    <!-- Terms & Conditions -->
+                    <div class="flex items-start space-x-3">
+                        <div class="relative mt-1">
+                            <input type="checkbox" name="terms" required id="terms" class="sr-only peer">
+                            <div class="w-6 h-6 border-2 border-gray-300 rounded-lg peer-checked:bg-gradient-to-r peer-checked:from-green-500 peer-checked:to-emerald-500 transition"></div>
+                            <i class="fas fa-check absolute inset-0 text-white text-xs flex items-center justify-center opacity-0 peer-checked:opacity-100 transition"></i>
+                        </div>
+                        <label for="terms" class="text-gray-700 text-sm cursor-pointer">
+                            I agree to the
+                            <a href="#" class="text-blue-600 hover:underline">Terms of Service</a>
+                            and
+                            <a href="#" class="text-blue-600 hover:underline">Privacy Policy</a>
+                        </label>
+                    </div>
+
+                    <!-- Error Messages -->
+                    {% if messages %}
+                    <div class="p-4 bg-gradient-to-r from-red-50 to-pink-50 border-2 border-red-200 rounded-2xl">
+                        <div class="flex items-start space-x-3">
+                            <div class="w-10 h-10 rounded-full bg-gradient-to-r from-red-500 to-pink-500 flex items-center justify-center flex-shrink-0">
+                                <i class="fas fa-exclamation-triangle text-white"></i>
+                            </div>
+                            <div class="space-y-1">
+                                {% for message in messages %}
+                                <p class="text-red-700 font-medium">{{ message }}</p>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Submit Button -->
+                    <button type="submit"
+                            class="register-btn w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white py-4 px-8 rounded-2xl font-bold text-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
+                        <i class="fas fa-user-plus mr-3"></i>Create My Account
+                    </button>
+                </form>
+
+                <!-- Divider -->
+                <div class="flex items-center my-8">
+                    <div class="flex-1 border-t border-gray-300"></div>
+                    <span class="px-6 text-gray-500 font-medium">Already a member?</span>
+                    <div class="flex-1 border-t border-gray-300"></div>
+                </div>
+
+                <!-- Login Link -->
+                <div class="text-center">
+                    <a href="{% url 'users:login' %}"
+                       class="register-btn inline-block w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white py-4 px-8 rounded-2xl font-bold text-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
+                        <i class="fas fa-sign-in-alt mr-3"></i>Sign In Instead
+                    </a>
+                </div>
+            </div>
+
+            <!-- Right Column - Benefits -->
+            <div class="hidden lg:flex flex-col justify-center p-8">
+                <div class="glass-effect rounded-3xl p-8 backdrop-blur-sm">
+                    <div class="w-20 h-20 bg-gradient-to-r from-yellow-500 to-orange-500 rounded-2xl flex items-center justify-center mx-auto mb-6 floating">
+                        <i class="fas fa-crown text-white text-3xl"></i>
+                    </div>
+                    <h2 class="text-3xl font-bold text-white mb-6 text-center">Why Join NewsHub?</h2>
+
+                    <div class="space-y-6 mb-8">
+                        <div class="benefit-card">
+                            <div class="flex items-center space-x-4">
+                                <div class="w-12 h-12 rounded-xl bg-gradient-to-r from-blue-400 to-cyan-500 flex items-center justify-center">
+                                    <i class="fas fa-pen text-white"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-gray-800 mb-1">Write & Publish</h4>
+                                    <p class="text-gray-600 text-sm">Share your stories with a global audience</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="benefit-card">
+                            <div class="flex items-center space-x-4">
+                                <div class="w-12 h-12 rounded-xl bg-gradient-to-r from-purple-400 to-pink-500 flex items-center justify-center">
+                                    <i class="fas fa-comments text-white"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-gray-800 mb-1">Join Discussions</h4>
+                                    <p class="text-gray-600 text-sm">Engage with readers and writers worldwide</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="benefit-card">
+                            <div class="flex items-center space-x-4">
+                                <div class="w-12 h-12 rounded-xl bg-gradient-to-r from-red-400 to-orange-500 flex items-center justify-center">
+                                    <i class="fas fa-heart text-white"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-gray-800 mb-1">Rate & Review</h4>
+                                    <p class="text-gray-600 text-sm">Share your opinions on stories you love</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="benefit-card">
+                            <div class="flex items-center space-x-4">
+                                <div class="w-12 h-12 rounded-xl bg-gradient-to-r from-yellow-400 to-orange-500 flex items-center justify-center">
+                                    <i class="fas fa-bookmark text-white"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-gray-800 mb-1">Save Favorites</h4>
+                                    <p class="text-gray-600 text-sm">Build your personal library of stories</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="text-center">
+                        <p class="text-white/70 text-sm mb-4">
+                            Join 10,000+ writers and readers already sharing their stories
+                        </p>
+                        <div class="flex justify-center space-x-2">
+                            <div class="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
+                                <i class="fas fa-check text-white text-xs"></i>
+                            </div>
+                            <div class="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
+                                <i class="fas fa-check text-white text-xs"></i>
+                            </div>
+                            <div class="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
+                                <i class="fas fa-check text-white text-xs"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<script>
+    // Password strength checker
+    function updatePasswordStrength() {
+        const password = document.getElementById('password').value;
+        const strengthBar = document.getElementById('password-strength');
+        const hint = document.getElementById('password-hint');
+
+        let strength = 0;
+        let message = 'Use at least 8 characters with letters and numbers';
+
+        // Check length
+        if (password.length >= 8) strength++;
+        if (password.length >= 12) strength++;
+
+        // Check complexity
+        if (/[A-Z]/.test(password)) strength++;
+        if (/[0-9]/.test(password)) strength++;
+        if (/[^A-Za-z0-9]/.test(password)) strength++;
+
+        // Cap at 4
+        strength = Math.min(strength, 4);
+
+        // Update UI
+        strengthBar.className = 'password-strength strength-' + strength;
+
+        // Update message
+        const messages = [
+            'Very weak password',
+            'Weak password',
+            'Fair password',
+            'Good password',
+            'Strong password!'
+        ];
+        const colors = ['text-red-600', 'text-orange-600', 'text-yellow-600', 'text-blue-600', 'text-green-600'];
+
+        hint.textContent = messages[strength];
+        hint.className = 'text-sm ' + colors[strength];
+    }
+
+    // Password match checker
+    function checkPasswordMatch() {
+        const password = document.getElementById('password').value;
+        const confirmPassword = document.getElementById('confirm-password').value;
+        const hint = document.getElementById('confirm-hint');
+
+        if (confirmPassword.length === 0) {
+            hint.textContent = 'Must match the password above';
+            hint.className = 'text-sm text-gray-500';
+            return;
+        }
+
+        if (password === confirmPassword) {
+            hint.textContent = '✓ Passwords match';
+            hint.className = 'text-sm text-green-600 font-medium';
+        } else {
+            hint.textContent = '✗ Passwords do not match';
+            hint.className = 'text-sm text-red-600 font-medium';
+        }
+    }
+
+    // Username availability check (simulated)
+    function checkUsernameAvailability() {
+        const username = document.getElementById('username').value;
+        const hint = document.getElementById('username-hint');
+
+        if (username.length < 3) {
+            hint.textContent = 'Username must be at least 3 characters';
+            hint.className = 'text-sm text-gray-500';
+            return;
+        }
+
+        // Simulate API call
+        setTimeout(() => {
+            // In a real app, this would be an AJAX request
+            const takenUsernames = ['admin', 'user', 'test'];
+            if (takenUsernames.includes(username.toLowerCase())) {
+                hint.textContent = '✗ Username is already taken';
+                hint.className = 'text-sm text-red-600 font-medium';
+            } else {
+                hint.textContent = '✓ Username is available';
+                hint.className = 'text-sm text-green-600 font-medium';
+            }
+        }, 500);
+    }
+
+    // Form submission animation
+    document.getElementById('register-form').addEventListener('submit', function(e) {
+        const submitBtn = this.querySelector('button[type="submit"]');
+        const originalText = submitBtn.innerHTML;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Creating Account...';
+        submitBtn.disabled = true;
+
+        // Re-enable button after 3 seconds if form doesn't submit
+        setTimeout(() => {
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
+        }, 3000);
+    });
+
+    // Initialize password strength on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        updatePasswordStrength();
+        checkPasswordMatch();
+    });
+</script>
+</body>
+</html>
